@@ -63,10 +63,11 @@ class SuperParser:
         yield ""
         yield "possible subcommands:"
         help_pairs = [cmd.get_help_pair() for cmd in self.subCommands]
-        shift = 10
+        shift = 0
         for x, y in help_pairs:
             shift = max(shift, len(x))
         shift = max(shift, len(HELP_FLAGS))
+        shift += 2
         for x, y in help_pairs:
             yield f"  {x:<{shift}}{y}"
         yield ""

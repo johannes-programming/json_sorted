@@ -29,6 +29,8 @@ def main(args: Optional[Iterable[str]] = None, /) -> None:
         logging.error(e)
         parser.print_help(file=sys.stderr)
         sys.exit(1)
+    if not args_:
+        return
     subcmd = args_.pop(0)
     if subcmd == "json":
         normdata.json.main.main(args_)
