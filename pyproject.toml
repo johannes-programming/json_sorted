@@ -28,7 +28,7 @@ license-files = [
 name = "normdata"
 readme = "README.rst"
 requires-python = ">=3.11"
-version = "0.0.0.dev2"
+version = "0.0.0.dev3"
 
 [project.urls]
 Download = "https://pypi.org/project/normdata/#files"

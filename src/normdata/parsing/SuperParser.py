@@ -3,6 +3,8 @@ import sys
 from collections.abc import Generator, Iterable
 from typing import Any, Optional, Self
 
+from .getopt_long import getopt_long
+
 __all__ = ["SuperParser"]
 
 NO_SUBCOMMAND = "Required subcommand absent!"
@@ -39,12 +41,14 @@ class SuperParser:
         prog: Optional[str] = None,
         *,
         desc: Optional[str] = None,
+        # version: Optional[str] = None,
     ) -> None:
         if prog is None:
             prog = sys.argv[0]
         self.prog = prog
         self.desc = desc
         self.subCommands: list[SubCommand] = list()
+        # self.version = version
 
     def add_subcommand(
         self: Self,
@@ -86,27 +90,11 @@ class SuperParser:
     def parse_args(
         self: Self, args: Optional[Iterable[str]] = None, /
     ) -> list[str]:
-        if args is None:
-            args_ = list(sys.argv[1:])
-        else:
-            args_ = list(args)
-        longs = list()
-        shorts = ""
-        while args_:
-            if args_[0] == "--":
-                args_.pop(0)
-                break
-            if args_[0].startswith("--"):
-                longs.append(args_.pop(0)[2:].split("=", 1)[0])
-                continue
-            if args_[0] == "-" or not args_[0].startswith("-"):
-                break
-            for x in args_.pop(0)[1:]:
-                shorts += x
-        if "h" in shorts or any(map("help".startswith, longs)):
+        opts, args_ = getopt_long(args, ["help"])
+        if set(opts).intersection({"-h", "--help"}):
             self.print_help()
             return []
-        if longs or shorts:
+        if opts:
             raise ValueError(UNKNOWN_OPTION)
         if not args_:
             raise ValueError(NO_SUBCOMMAND)
@@ -115,7 +103,8 @@ class SuperParser:
                 return args_
         for cmd in self.subCommands:
             if args_[0] in cmd.aliases:
-                return [cmd.name] + args_[1:]
+                args_[0] = cmd.name
+                return args_
         raise ValueError(UNKNOWN_SUBCOMMAND)
 
     def print_help(self: Self, **kwargs: Any) -> None:
